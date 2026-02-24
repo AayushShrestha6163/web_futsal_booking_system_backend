@@ -7,9 +7,22 @@ export const addCourt = async (req: Request, res: Response) => {
   res.status(201).json({ success: true, court });
 };
 
-export const getCourts = async (_: Request, res: Response) => {
-  const courts = await CourtService.getCourtsService();
-  res.json({ success: true, courts });
+export const getCourts = async (req: Request, res: Response) => {
+  const page = Math.max(1, parseInt(String(req.query.page || "1"), 10));
+  const limit = Math.max(1, parseInt(String(req.query.limit || "6"), 10));
+
+  const result = await CourtService.getCourtsService(page, limit);
+
+  res.json({
+    success: true,
+    courts: result.courts,
+    pagination: {
+      page,
+      limit,
+      total: result.total,
+      totalPages: result.totalPages,
+    },
+  });
 };
 
 export const updateCourt = async (req: Request, res: Response) => {
