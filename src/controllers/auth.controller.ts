@@ -125,5 +125,31 @@ async getUserById(req: Request, res: Response) {
             );
         }
     }
+    async getMyProfile(req: Request, res: Response) {
+  try {
+    const userId = req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    // ✅ use your service method
+    const user = await userService.getMyProfile(String(userId));
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile fetched",
+      data: user,
+    });
+  } catch (error: any) {
+    return res.status(error.statusCode ?? 500).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+  }
+}
     
 }

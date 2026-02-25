@@ -101,4 +101,17 @@ export class UserService {
             throw new HttpError(400, "Invalid or expired token");
         }
     }
+    async getMyProfile(userId: string) {
+  const user = await userRepository.getUserById(userId);
+
+  if (!user) {
+    throw new HttpError(404, "User not found");
+  }
+
+  // ✅ remove password before sending to frontend
+  const userObj: any = user.toObject ? user.toObject() : user;
+  delete userObj.password;
+
+  return userObj;
+}
 }
