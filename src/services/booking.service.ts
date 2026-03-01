@@ -60,3 +60,14 @@ export const cancelBookingService = async (
 
   return BookingRepo.cancelBooking(bookingId);
 };
+export const getBookingByIdService = async (bookingId: string, userId: string) => {
+  const booking = await BookingRepo.getBookingById(bookingId);
+  if (!booking) throw new Error("Booking not found");
+
+  // owner check
+  if (booking.user.toString() !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  return booking;
+};

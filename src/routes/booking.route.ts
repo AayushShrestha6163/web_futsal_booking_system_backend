@@ -9,6 +9,7 @@ router.use(authorizedMiddleware);
 router.post("/", BookingController.createBooking);
 router.get("/me", BookingController.getMyBookings);
 router.delete("/:id", BookingController.cancelBooking);
+router.get("/:id", BookingController.getBookingById);
 
 
 export default router;

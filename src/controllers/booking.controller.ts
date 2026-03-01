@@ -35,4 +35,20 @@ export const cancelBooking = async (req: Request, res: Response) => {
   } catch (err: any) {
     return res.status(400).json({ success: false, message: err.message });
   }
+  
+};
+export const getBookingById = async (req: Request, res: Response) => {
+  try {
+    const bookingId = req.params.id;
+    const userId = req.user!._id.toString();
+
+    const booking = await BookingService.getBookingByIdService(bookingId, userId);
+
+    return res.json({ success: true, booking });
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Failed to fetch booking",
+    });
+  }
 };

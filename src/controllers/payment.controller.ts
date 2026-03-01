@@ -81,7 +81,7 @@ export const initiateEsewa = async (req: Request, res: Response) => {
       PRODUCT_CODE
     );
 
-    // PUBLIC callback URLs (must be reachable by eSewa)
+    // ✅ callback URLs (must be reachable from emulator/phone)
     const success_url = `${API_BASE_URL}/api/payments/esewa/success`;
     const failure_url = `${API_BASE_URL}/api/payments/esewa/failure`;
 
@@ -90,6 +90,9 @@ export const initiateEsewa = async (req: Request, res: Response) => {
     booking.paymentStatus = "UNPAID";
     booking.transactionUuid = transaction_uuid;
     await booking.save();
+
+    // helpful debug (optional)
+    console.log("initiateEsewa success_url:", success_url);
 
     return res.json({
       success: true,
@@ -139,16 +142,15 @@ export const esewaSuccess = async (req: Request, res: Response) => {
     const booking = await BookingModel.findOne({ transactionUuid: transaction_uuid });
     if (!booking) return res.status(404).send("Booking not found");
 
-    // Idempotency: if already paid, just redirect success
+    // Idempotency
     if (booking.paymentStatus === "PAID") {
-  const okUrl = new URL(`${WEB_BASE_URL}/dashboard`);
-  okUrl.searchParams.set("success", "Payment successful");
-  okUrl.searchParams.set("bookingId", booking._id.toString());
-  return res.redirect(okUrl.toString());
-}
+      const okUrl = new URL(`${WEB_BASE_URL}/dashboard`);
+      okUrl.searchParams.set("success", "Payment successful");
+      okUrl.searchParams.set("bookingId", booking._id.toString());
+      return res.redirect(okUrl.toString());
+    }
 
-    // Server-to-server verification via status API
-    // STATUS_URL should be base like: https://uat.esewa.com.np/api/epay/transaction/status/
+    // ✅ Server-to-server verification
     const statusResp = await axios.get(STATUS_URL, {
       params: {
         product_code: PRODUCT_CODE,
@@ -158,29 +160,37 @@ export const esewaSuccess = async (req: Request, res: Response) => {
       timeout: 10000,
     });
 
-    const status = String(statusResp.data?.status || "");
-    if (status === "COMPLETE") {
+    // ✅ IMPORTANT FIX: normalize status
+    const statusRaw = String(statusResp.data?.status || "");
+    const status = statusRaw.trim().toUpperCase();
+
+    console.log("eSewa statusResp:", statusResp.data);
+    console.log("normalized status:", status);
+
+    if (status === "COMPLETE" || status === "COMPLETED" || status === "SUCCESS") {
       booking.paymentStatus = "PAID";
       booking.status = "confirmed";
       booking.transactionCode = payload.transaction_code;
       booking.paidAt = new Date();
       await booking.save();
 
+      console.log("UPDATED:", booking.paymentStatus, booking.status);
+
       const okUrl = new URL(`${WEB_BASE_URL}/dashboard`);
-okUrl.searchParams.set("success", "Payment successful");
-okUrl.searchParams.set("bookingId", booking._id.toString());
-return res.redirect(okUrl.toString());
+      okUrl.searchParams.set("success", "Payment successful");
+      okUrl.searchParams.set("bookingId", booking._id.toString());
+      return res.redirect(okUrl.toString());
     }
 
-    // not complete => keep UNPAID (or set FAILED if you want)
+    // not complete => treat as failed/cancelled
     const failUrl = new URL(`${WEB_BASE_URL}/dashboard`);
-failUrl.searchParams.set("error", "Payment failed or cancelled");
+    failUrl.searchParams.set("error", `Payment not complete (${status || "UNKNOWN"})`);
     failUrl.searchParams.set("bookingId", booking._id.toString());
     return res.redirect(failUrl.toString());
   } catch (e: any) {
     const failUrl = new URL(`${process.env.WEB_BASE_URL || "http://localhost:3000"}/dashboard`);
-failUrl.searchParams.set("error", e.message || "Payment verification error");
-return res.redirect(failUrl.toString());
+    failUrl.searchParams.set("error", e.message || "Payment verification error");
+    return res.redirect(failUrl.toString());
   }
 };
 
