@@ -18,11 +18,28 @@ export const findOverlap = (
   });
 };
 
-export const getMyBookings = (userId: string) =>
-  BookingModel.find({ user: userId })
-    .populate("court", "name location pricePerHour")
-    .sort({ date: -1 });
 
+export const getMyBookings = async (userId: string) => {
+  return BookingModel.find({ user: userId })
+    .populate("court", "name location pricePerHour")
+    .select(
+      [
+        "court",
+        "date",
+        "startTime",
+        "endTime",
+        "price",
+        "status",
+        "paymentMethod",
+        "paymentStatus",
+        "transactionUuid",
+        "transactionCode",
+        "paidAt",
+        "createdAt",
+      ].join(" ")
+    )
+    .sort({ date: 1, startTime: 1 });
+};
 export const getBookingById = (id: string) =>
   BookingModel.findById(id);
 
