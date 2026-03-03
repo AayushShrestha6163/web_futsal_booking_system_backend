@@ -11,5 +11,7 @@ router.get("/me", BookingController.getMyBookings);
 router.delete("/:id", BookingController.cancelBooking);
 router.get("/:id", BookingController.getBookingById);
 
+router.patch("/:id/pay", BookingController.markBookingPaid);
+
 
 export default router;

@@ -1,5 +1,7 @@
 import * as BookingRepo from "../repositories/booking.repository";
 import Court from "../models/court.model";
+import { BookingModel } from "../models/booking.model";
+import mongoose from "mongoose";
 
 export const createBookingService = async (
   userId: string,
@@ -69,5 +71,39 @@ export const getBookingByIdService = async (bookingId: string, userId: string) =
     throw new Error("Unauthorized");
   }
 
+  return booking;
+};
+
+export const markBookingPaidService = async (
+  bookingId: string,
+  userId: string,
+  ok: boolean,
+  transactionCode?: string
+) => {
+  if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+  throw new Error("Invalid booking id");
+}
+  const booking = await BookingModel.findOne({ _id: bookingId, user: userId });
+  if (!booking) throw new Error("Booking not found");
+
+  if (booking.status === "cancelled" || booking.status === "completed") {
+    throw new Error(`Cannot pay a ${booking.status} booking`);
+  }
+
+  // Always eSewa for this endpoint
+  booking.paymentMethod = "ESEWA";
+
+  if (ok === true) {
+    booking.paymentStatus = "PAID";
+    booking.paidAt = new Date();
+    if (transactionCode) booking.transactionCode = transactionCode;
+
+    // optional: confirm after payment
+    booking.status = "confirmed";
+  } else {
+    booking.paymentStatus = "FAILED";
+  }
+
+  await booking.save();
   return booking;
 };

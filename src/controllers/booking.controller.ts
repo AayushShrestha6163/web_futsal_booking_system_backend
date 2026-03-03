@@ -52,3 +52,32 @@ export const getBookingById = async (req: Request, res: Response) => {
     });
   }
 };
+export const markBookingPaid = async (req: Request, res: Response) => {
+  try {
+    const bookingId = req.params.id;
+    const userId = req.user!._id.toString();
+
+    const { ok, transactionCode } = req.body as {
+      ok: boolean;
+      transactionCode?: string;
+    };
+
+    const booking = await BookingService.markBookingPaidService(
+      bookingId,
+      userId,
+      ok,
+      transactionCode
+    );
+
+    return res.json({
+      success: true,
+      message: ok ? "Payment marked as PAID" : "Payment marked as FAILED",
+      booking,
+    });
+  } catch (err: any) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Payment update failed",
+    });
+  }
+};
