@@ -15,7 +15,7 @@ const SECRET = process.env.ESEWA_SECRET_KEY || "";
 const FORM_URL = process.env.ESEWA_FORM_URL || "";
 const STATUS_URL = process.env.ESEWA_STATUS_URL || "";
 
-// ✅ Emulator-safe defaults (no localhost fallbacks)
+//  Emulator-safe defaults (no localhost fallbacks)
 const API_BASE_URL = process.env.API_BASE_URL || "http://10.0.2.2:8000";
 const WEB_BASE_URL = process.env.WEB_BASE_URL || "http://10.0.2.2:3000";
 
@@ -25,7 +25,7 @@ function requireEnv(res: Response) {
   if (!FORM_URL) missing.push("ESEWA_FORM_URL");
   if (!STATUS_URL) missing.push("ESEWA_STATUS_URL");
 
-  // we no longer require API_BASE_URL / WEB_BASE_URL strictly because we have defaults
+
   if (missing.length) {
     res.status(500).json({
       success: false,
@@ -78,7 +78,7 @@ export const initiateEsewa = async (req: Request, res: Response) => {
       PRODUCT_CODE
     );
 
-    // ✅ callback URLs (emulator reachable)
+    
     const success_url = `${API_BASE_URL}/api/payments/esewa/success`;
     const failure_url = `${API_BASE_URL}/api/payments/esewa/failure`;
 

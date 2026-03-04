@@ -19,7 +19,7 @@ export const getCourtByIdForUsers = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    // ✅ prevents CastError -> 500
+   
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ success: false, message: "Invalid court id" });
     }
@@ -32,7 +32,7 @@ export const getCourtByIdForUsers = async (req: Request, res: Response) => {
 
     return res.json({ success: true, court });
   } catch (err: any) {
-    // ✅ now you'll see exact reason in backend terminal
+   
     console.error("getCourtByIdForUsers error:", err);
 
     return res.status(500).json({

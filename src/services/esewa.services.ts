@@ -32,5 +32,5 @@ export const timingSafeEqualB64 = (a: string, b: string) => {
   return crypto.timingSafeEqual(ba, bb);
 };
 
-// keep amounts consistent for eSewa APIs
+
 export const formatEsewaAmount = (amount: number) => amount.toFixed(2);

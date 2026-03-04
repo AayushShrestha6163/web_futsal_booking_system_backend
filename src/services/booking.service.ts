@@ -31,7 +31,7 @@ export const createBookingService = async (
     user: userId,
     ...data,
     price,
-    status: "pending",          // stays pending until payment success
+    status: "pending",          
     paymentMethod: "NONE",
     paymentStatus: "UNPAID",
   });
@@ -66,7 +66,7 @@ export const getBookingByIdService = async (bookingId: string, userId: string) =
   const booking = await BookingRepo.getBookingById(bookingId);
   if (!booking) throw new Error("Booking not found");
 
-  // owner check
+
   if (booking.user.toString() !== userId) {
     throw new Error("Unauthorized");
   }
@@ -90,7 +90,7 @@ export const markBookingPaidService = async (
     throw new Error(`Cannot pay a ${booking.status} booking`);
   }
 
-  // Always eSewa for this endpoint
+  
   booking.paymentMethod = "ESEWA";
 
   if (ok === true) {
@@ -98,7 +98,7 @@ export const markBookingPaidService = async (
     booking.paidAt = new Date();
     if (transactionCode) booking.transactionCode = transactionCode;
 
-    // optional: confirm after payment
+   
     booking.status = "confirmed";
   } else {
     booking.paymentStatus = "FAILED";
