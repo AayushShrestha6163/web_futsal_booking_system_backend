@@ -3,8 +3,7 @@ import { UserModel, IUser } from "../models/user.model";
 export interface IUserRepository {
     getUserByEmail(email: string): Promise<IUser | null>;
     
-    // Additional
-    // 5 common database queries for entity
+    
     createUser(userData: Partial<IUser>): Promise<IUser>;
     getUserById(id: string): Promise<IUser | null>;
     getAllUsers(
@@ -13,7 +12,7 @@ export interface IUserRepository {
     updateUser(id: string, updateData: Partial<IUser>): Promise<IUser | null>;
     deleteUser(id: string): Promise<boolean>;
 }
-// MongoDb Implementation of UserRepository
+
 export class UserRepository implements IUserRepository {
     async createUser(userData: Partial<IUser>): Promise<IUser> {
         const user = new UserModel(userData); 
@@ -26,7 +25,7 @@ export class UserRepository implements IUserRepository {
     
 
     async getUserById(id: string): Promise<IUser | null> {
-        // UserModel.findOne({ "_id": id });
+        
         const user = await UserModel.findById(id);
         return user;
     }
@@ -51,14 +50,14 @@ export class UserRepository implements IUserRepository {
         return { users, total };
     }
     async updateUser(id: string, updateData: Partial<IUser>): Promise<IUser | null> {
-        // UserModel.updateOne({ _id: id }, { $set: updateData });
+        
         const updatedUser = await UserModel.findByIdAndUpdate(
-            id, updateData, { new: true } // return the updated document
+            id, updateData, { new: true } 
         );
         return updatedUser;
     }
     async deleteUser(id: string): Promise<boolean> {
-        // UserModel.deleteOne({ _id: id });
+        
         const result = await UserModel.findByIdAndDelete(id);
         return result ? true : false;
     }

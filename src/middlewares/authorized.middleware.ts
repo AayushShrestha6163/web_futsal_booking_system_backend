@@ -12,7 +12,7 @@ declare global {
         }
     }
 }
-// Adding user info to req object
+
 
 const userRepository = new UserRepository();
 export const authorizedMiddleware = 
@@ -29,24 +29,20 @@ export const authorizedMiddleware =
             const user = await userRepository.getUserById(decoded.id);
             if(!user) throw new HttpError(401, "Unauthorized User Not Found");
             
-            req.user = user; // attach user info to req object
+            req.user = user; 
             return next();
         }catch(error: Error | any){
             return res.status(error.statusCode ?? 500).json(
                 { success: false, message: error.message || "Internal Server Error" }
             );   
         }
-    // if(req.headers && req.headers.authorization){
-    //     return next();
-    // }
-    // return res.status(401).json({ success: false, message: "Unauthorized" });
+    
 }
 
 export const adminOnlyMiddleware = 
     async (req: Request, res: Response, next: NextFunction) => {
         try{
-            // req.user is set in authorizedMiddleware
-            // any function after authorizedMiddleware can access req.user
+            
             if(!req.user){
                 throw new HttpError(401, "Unauthorized User Not Found");
             }

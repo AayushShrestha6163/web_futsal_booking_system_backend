@@ -6,8 +6,8 @@ let adminUserController = new AdminUserController();
 
 const router = Router();
 
-router.use(authorizedMiddleware); // apply all with middleware
-router.use(adminOnlyMiddleware); // apply all with middleware
+router.use(authorizedMiddleware); 
+router.use(adminOnlyMiddleware); 
 
 router.post("/", uploads.single("profile"), adminUserController.createUser);
 router.get("/", adminUserController.getAllUsers);

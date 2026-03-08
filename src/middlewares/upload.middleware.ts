@@ -6,8 +6,7 @@ import fs from "fs";
 import { Request} from "express";
 import { HttpError } from "../errors/http-error";
 
-// Ensure the uploads directory exists
-// __dirname = current directory of this file
+
 const uploadDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -35,7 +34,7 @@ const upload = multer(
     {
         storage: storage,
         fileFilter: fileFilter,
-        limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
+        limits: { fileSize: 5 * 1024 * 1024 } 
     }
 )
 
